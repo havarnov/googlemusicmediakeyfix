@@ -1,0 +1,5 @@
+content   gmusicmediafix                content/
+skin      gmusicmediafix  classic/1.0   skin/
+locale    gmusicmediafix  en-US         locale/en-US/
+
+overlay chrome://browser/content/browser.xul  chrome://gmusicmediafix/content/browserOverlay.xul
