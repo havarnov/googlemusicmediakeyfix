@@ -240,7 +240,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             break;
 
         case WM_WTSSESSION_CHANGE:
-            lastKeycode = 1;
+            setLastKeycode(2);
             break;
 
         default:
