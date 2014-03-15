@@ -70,6 +70,30 @@ HANDLE			threadHandle = NULL;
 //Integer code (defined above) of the last media key that was pressed
 int				lastKeycode = 0;
 
+HANDLE lastKeycodeMutex;
+
+void setLastKeycode(int newKeycode) {
+    DWORD waitForMutexRelease = WaitForSingleObject(
+        lastKeycodeMutex,   // handle to mutex
+        INFINITE            // no time-out interval
+        );
+    switch (waitForMutexRelease)
+    {
+        // The thread got ownership of the mutex
+        case WAIT_OBJECT_0:
+            lastKeycode = newKeycode;
+            if (! ReleaseMutex(lastKeycodeMutex))
+            {
+                // TODO:Handle error.
+            }
+            break;
+
+        // The thread got ownership of an abandoned mutex
+        case WAIT_ABANDONED:
+            return;
+    }
+}
+
 //Boolean to indicate whether cleanup has been triggered
 BOOL			cleaningUp = FALSE;
 
@@ -83,6 +107,12 @@ void            cleanup();
 //Creates the window thread, which handles session lock events. 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
+    lastKeycodeMutex = CreateMutex(
+        NULL,              // default security attributes
+        FALSE,             // initially not owned
+        NULL               // unnamed mutex
+        );
+
     if(fdwReason == DLL_PROCESS_ATTACH) {
         inj_hModule = hinstDLL;
         CreateThread(
@@ -131,13 +161,13 @@ static void handleHotkeys(void *param)
 			if (msg.message == WM_HOTKEY)
 			{
 				if (msg.wParam == PLAY_PAUSE_HOTKEY)
-					lastKeycode = 1;
+                    setLastKeycode(1);
 				else if (msg.wParam == STOP_HOTKEY)
-					lastKeycode = 2;
+                    setLastKeycode(2);
 				else if (msg.wParam == PREV_HOTKEY)
-					lastKeycode = 3;
+                    setLastKeycode(3);
 				else if (msg.wParam == NEXT_HOTKEY)
-					lastKeycode = 4;
+                    setLastKeycode(4);
 			}
 		}
 		
@@ -157,10 +187,28 @@ static void handleHotkeys(void *param)
 //call to getKeycode().
 int getKeycode()
 {
-	int retVal = lastKeycode;
-	
-	lastKeycode = 0;
-	
+	int retVal;
+    DWORD waitForMutexRelease = WaitForSingleObject(
+        lastKeycodeMutex,   // handle to mutex
+        INFINITE            // no time-out interval
+        );
+    switch (waitForMutexRelease)
+    {
+        // The thread got ownership of the mutex
+        case WAIT_OBJECT_0:
+            retVal = lastKeycode;
+            lastKeycode = 0;
+            if (! ReleaseMutex(lastKeycodeMutex))
+            {
+                // TODO:Handle error.
+            }
+            break;
+
+        // The thread got ownership of an abandoned mutex
+        case WAIT_ABANDONED:
+            retVal = 0;
+    }
+
 	return retVal;
 }
 
