@@ -235,12 +235,16 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 {
     switch (message)
     {
+        int wmId;
         case WM_DESTROY:
             PostQuitMessage (0);
             break;
 
         case WM_WTSSESSION_CHANGE:
-            setLastKeycode(2);
+            wmId = LOWORD(wParam);
+            if (wmId == WTS_SESSION_LOCK) {
+                setLastKeycode(2);
+            }
             break;
 
         default:
