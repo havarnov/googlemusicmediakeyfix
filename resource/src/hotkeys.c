@@ -1,6 +1,5 @@
+#define _WIN32_WINNT 0x0501 
 #include <windows.h>
-// hack since my machine reports that its win2k
-#define _WIN32_WINNT _WIN32_WINNT_VISTA
 #include <wtsapi32.h>
 
 //Keycode definitions
