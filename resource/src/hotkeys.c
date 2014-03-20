@@ -95,7 +95,7 @@ void setLastKeycode(int newKeycode) {
 //Function prototypes
 void            init();
 static void     handleHotkeys(void *param);
-int             getKeycode();
+int             getLastKeycode();
 void            cleanup();
 
 //DLL Entry point
@@ -178,9 +178,9 @@ static void handleHotkeys(void *param)
 }
 
 //Returns the code of the last media key pressed since the previous call to
-//getKeycode(). Returns 0 if no media key has been pressed since the previous
-//call to getKeycode().
-int getKeycode()
+//getLastKeycode(). Returns 0 if no media key has been pressed since the previous
+//call to getLastKeycode().
+int getLastKeycode()
 {
 	int retVal;
     DWORD waitForMutexRelease = WaitForSingleObject(
