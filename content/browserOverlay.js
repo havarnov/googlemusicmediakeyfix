@@ -33,9 +33,9 @@ if (!GMusicMediaFix.HotkeyLib) GMusicMediaFix.HotkeyLib = {
         dllInit();
       }
 
-      //Set up the DLL's getKeycode function to be called as GMusicMediaFix.HotkeyLib.getKeycode().
-      GMusicMediaFix.HotkeyLib.getKeycode = GMusicMediaFix.HotkeyLib.libC.declare(
-        "getKeycode", //C function name
+      //Set up the DLL's getLastKeycode function to be called as GMusicMediaFix.HotkeyLib.getLastKeycode().
+      GMusicMediaFix.HotkeyLib.getLastKeycode = GMusicMediaFix.HotkeyLib.libC.declare(
+        "getLastKeycode", //C function name
         ctypes.default_abi, //Default call ABI
         ctypes.int32_t //C function return type
       );
@@ -46,11 +46,11 @@ if (!GMusicMediaFix.HotkeyLib) GMusicMediaFix.HotkeyLib = {
         //Get the keycode value from the DLL.
         var keycodeValue = 0;
 
-        if (GMusicMediaFix.HotkeyLib.getKeycode != null) {
-          keycodeValue = GMusicMediaFix.HotkeyLib.getKeycode();
+        if (GMusicMediaFix.HotkeyLib.getLastKeycode != null) {
+          keycodeValue = GMusicMediaFix.HotkeyLib.getLastKeycode();
 
           //If the keycode value is nonzero, there was a media key press
-          //since our last call to getKeycode().
+          //since our last call to getLastKeycode().
           if (keycodeValue != 0) {
             //Setup a variable for Google Play's document object.
             var googlePlayDocument = GMusicMediaFix.Functions.getFirstGooglePlayDoc();
@@ -114,7 +114,7 @@ if (!GMusicMediaFix.HotkeyLib) GMusicMediaFix.HotkeyLib = {
     }
   },
 
-  getKeycode: null,
+  getLastKeycode: null,
 
   cleanup: function () {
     if (GMusicMediaFix.HotkeyLib.libC != null) {
@@ -142,7 +142,7 @@ if (!GMusicMediaFix.HotkeyLib) GMusicMediaFix.HotkeyLib = {
       GMusicMediaFix.HotkeyLib.libC = null;
       GMusicMediaFix.HotkeyLib.hotkeyIntervalID = 0;
       GMusicMediaFix.HotkeyLib.tabWatchIntervalID = 0;
-      GMusicMediaFix.HotkeyLib.getKeycode = null;
+      GMusicMediaFix.HotkeyLib.getLastKeycode = null;
     }
   }
 };
