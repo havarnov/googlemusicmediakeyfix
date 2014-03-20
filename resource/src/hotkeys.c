@@ -69,33 +69,11 @@ DWORD WINAPI CreateHiddenWindow( LPVOID lpParam )
     return 1;
 }
 
-
-void setLastKeycode(int newKeycode) {
-    DWORD waitForMutexRelease = WaitForSingleObject(
-        lastKeycodeMutex,   // handle to mutex
-        INFINITE            // no time-out interval
-        );
-    switch (waitForMutexRelease)
-    {
-        // The thread got ownership of the mutex
-        case WAIT_OBJECT_0:
-            lastKeycode = newKeycode;
-            if (! ReleaseMutex(lastKeycodeMutex))
-            {
-                // TODO:Handle error.
-            }
-            break;
-
-        // The thread got ownership of an abandoned mutex
-        case WAIT_ABANDONED:
-            return;
-    }
-}
-
 //Function prototypes
 void            init();
 static void     handleHotkeys(void *param);
 int             getLastKeycode();
+void            setLastKeycode(int newKeycode);
 void            cleanup();
 
 //DLL Entry point
@@ -206,6 +184,29 @@ int getLastKeycode()
 
 	return retVal;
 }
+
+void setLastKeycode(int newKeycode) {
+    DWORD waitForMutexRelease = WaitForSingleObject(
+        lastKeycodeMutex,   // handle to mutex
+        INFINITE            // no time-out interval
+        );
+    switch (waitForMutexRelease)
+    {
+        // The thread got ownership of the mutex
+        case WAIT_OBJECT_0:
+            lastKeycode = newKeycode;
+            if (! ReleaseMutex(lastKeycodeMutex))
+            {
+                // TODO:Handle error.
+            }
+            break;
+
+        // The thread got ownership of an abandoned mutex
+        case WAIT_ABANDONED:
+            return;
+    }
+}
+
 
 //Unregisters the hotkeys and destroys the message handling thread
 void cleanup()
