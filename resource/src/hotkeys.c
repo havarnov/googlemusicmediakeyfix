@@ -24,7 +24,7 @@ void                setLastKeycode(int newKeycode);
 void                cleanup();
 LRESULT CALLBACK    WindowProcedure(HWND, UINT, WPARAM, LPARAM);
 BOOL                RegisterDLLWindowClass(char szClassName[]);
-DWORD WINAPI        CreateHiddenWindow( LPVOID lpParam );
+DWORD WINAPI        CreateMsgWindow( LPVOID lpParam );
 
 //DLL Entry point
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
@@ -40,7 +40,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
         CreateThread(
                 NULL,
                 0,
-                (LPTHREAD_START_ROUTINE)CreateHiddenWindow,
+                (LPTHREAD_START_ROUTINE)CreateMsgWindow,
                 NULL,
                 0,
                 NULL
@@ -69,7 +69,7 @@ BOOL RegisterDLLWindowClass(char szClassName[])
     }
 }
 
-DWORD WINAPI CreateHiddenWindow( LPVOID lpParam )
+DWORD WINAPI CreateMsgWindow( LPVOID lpParam )
 {
     MSG messages;
     char szClassName[] = "msgWindowClass";
