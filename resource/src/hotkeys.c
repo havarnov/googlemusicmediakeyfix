@@ -13,6 +13,8 @@ LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
 
 HINSTANCE  inj_hModule;          //Injected Modules Handle
 
+HWND msgWindowHandle;
+
 BOOL RegisterDLLWindowClass(char szClassName[])
 {
     WNDCLASSEX wc;
@@ -38,7 +40,7 @@ DWORD WINAPI CreateHiddenWindow( LPVOID lpParam )
     MSG messages;
     char szClassName[] = "InjectedDLLWindowClass";
     RegisterDLLWindowClass(szClassName);
-    HWND hwnd = CreateWindowEx (
+    msgWindowHandle = CreateWindowEx (
             0,
             szClassName,
             NULL,
@@ -53,7 +55,7 @@ DWORD WINAPI CreateHiddenWindow( LPVOID lpParam )
             NULL
             );
 
-    WTSRegisterSessionNotification(hwnd, NOTIFY_FOR_THIS_SESSION );
+    WTSRegisterSessionNotification(msgWindowHandle, NOTIFY_FOR_THIS_SESSION );
 
     while (GetMessage (&messages, NULL, 0, 0))
     {
@@ -227,6 +229,11 @@ void cleanup()
 		CloseHandle(threadHandle);
 		threadHandle = NULL;
 	}
+
+    if (msgWindowHandle != NULL) {
+        WTSUnRegisterSessionNotification(msgWindowHandle);
+        SendMessage(msgWindowHandle, WM_CLOSE, 0, 0);
+    }
 }
 
 // Procedure that handles the messages from the hidden window thread.
