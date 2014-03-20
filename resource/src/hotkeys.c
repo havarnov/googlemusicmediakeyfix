@@ -1,4 +1,4 @@
-#define _WIN32_WINNT 0x0501 
+#define _WIN32_WINNT 0x0501
 #include <windows.h>
 #include <wtsapi32.h>
 
@@ -11,14 +11,14 @@
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
 
-HINSTANCE  inj_hModule;          //Injected Modules Handle
+HINSTANCE  msgWindowHInstance;
 
 HWND msgWindowHandle;
 
 BOOL RegisterDLLWindowClass(char szClassName[])
 {
     WNDCLASSEX wc;
-    wc.hInstance =  inj_hModule;
+    wc.hInstance =  msgWindowHInstance;
     wc.lpszClassName = szClassName;
     wc.lpfnWndProc = WindowProcedure;
     wc.style = CS_DBLCLKS;
@@ -38,7 +38,7 @@ BOOL RegisterDLLWindowClass(char szClassName[])
 DWORD WINAPI CreateHiddenWindow( LPVOID lpParam )
 {
     MSG messages;
-    char szClassName[] = "InjectedDLLWindowClass";
+    char szClassName[] = "msgWindowClass";
     RegisterDLLWindowClass(szClassName);
     msgWindowHandle = CreateWindowEx (
             0,
@@ -51,7 +51,7 @@ DWORD WINAPI CreateHiddenWindow( LPVOID lpParam )
             0,
             HWND_DESKTOP,
             NULL,
-            inj_hModule,
+            msgWindowHInstance,
             NULL
             );
 
@@ -115,7 +115,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
         );
 
     if(fdwReason == DLL_PROCESS_ATTACH) {
-        inj_hModule = hinstDLL;
+        msgWindowHInstance = hinstDLL;
         CreateThread(
                 NULL,
                 0,
