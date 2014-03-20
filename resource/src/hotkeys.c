@@ -16,8 +16,38 @@ int             lastKeycode = 0;
 HANDLE          lastKeycodeMutex;
 BOOL            cleaningUp = FALSE;
 
-/*  Declare Windows procedure  */
-LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
+//Function prototypes
+void                init();
+static void         handleHotkeys(void *param);
+int                 getLastKeycode();
+void                setLastKeycode(int newKeycode);
+void                cleanup();
+LRESULT CALLBACK    WindowProcedure(HWND, UINT, WPARAM, LPARAM);
+BOOL                RegisterDLLWindowClass(char szClassName[]);
+DWORD WINAPI        CreateHiddenWindow( LPVOID lpParam );
+
+//DLL Entry point
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+{
+    lastKeycodeMutex = CreateMutex(
+        NULL,              // default security attributes
+        FALSE,             // initially not owned
+        NULL               // unnamed mutex
+        );
+
+    if(fdwReason == DLL_PROCESS_ATTACH) {
+        msgWindowHInstance = hinstDLL;
+        CreateThread(
+                NULL,
+                0,
+                (LPTHREAD_START_ROUTINE)CreateHiddenWindow,
+                NULL,
+                0,
+                NULL
+                );
+    }
+    return TRUE;
+}
 
 BOOL RegisterDLLWindowClass(char szClassName[])
 {
@@ -67,37 +97,6 @@ DWORD WINAPI CreateHiddenWindow( LPVOID lpParam )
         DispatchMessage(&messages);
     }
     return 1;
-}
-
-//Function prototypes
-void            init();
-static void     handleHotkeys(void *param);
-int             getLastKeycode();
-void            setLastKeycode(int newKeycode);
-void            cleanup();
-
-//DLL Entry point
-//Creates the window thread, which handles session lock events. 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-    lastKeycodeMutex = CreateMutex(
-        NULL,              // default security attributes
-        FALSE,             // initially not owned
-        NULL               // unnamed mutex
-        );
-
-    if(fdwReason == DLL_PROCESS_ATTACH) {
-        msgWindowHInstance = hinstDLL;
-        CreateThread(
-                NULL,
-                0,
-                (LPTHREAD_START_ROUTINE)CreateHiddenWindow,
-                NULL,
-                0,
-                NULL
-                );
-    }
-    return TRUE;
 }
 
 //Creates a thread which registers hotkeys and handles hotkey events.
