@@ -8,12 +8,16 @@
 #define PREV_HOTKEY 3
 #define NEXT_HOTKEY 4
 
+//Global variables
+HINSTANCE       msgWindowHInstance;
+HWND            msgWindowHandle;
+HANDLE          threadHandle = NULL;
+int             lastKeycode = 0;
+HANDLE          lastKeycodeMutex;
+BOOL            cleaningUp = FALSE;
+
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
-
-HINSTANCE  msgWindowHInstance;
-
-HWND msgWindowHandle;
 
 BOOL RegisterDLLWindowClass(char szClassName[])
 {
@@ -65,13 +69,6 @@ DWORD WINAPI CreateHiddenWindow( LPVOID lpParam )
     return 1;
 }
 
-//Handle of the message handling thread
-HANDLE			threadHandle = NULL;
-
-//Integer code (defined above) of the last media key that was pressed
-int				lastKeycode = 0;
-
-HANDLE lastKeycodeMutex;
 
 void setLastKeycode(int newKeycode) {
     DWORD waitForMutexRelease = WaitForSingleObject(
@@ -94,9 +91,6 @@ void setLastKeycode(int newKeycode) {
             return;
     }
 }
-
-//Boolean to indicate whether cleanup has been triggered
-BOOL			cleaningUp = FALSE;
 
 //Function prototypes
 void            init();
